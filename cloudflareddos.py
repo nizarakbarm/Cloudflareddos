@@ -247,21 +247,21 @@ def main():
         # print(args.filedns)
         # print(domain)
         if args.filedns is None:
-            ### set dns to localhost ###
+            # set dns to localhost ###
             # print(args.localhost)
             if args.localhost == True:
                 setLocalhost(cf, zone_id)
         else:
-            ### delete NS record line at dns zone db and import dns zone db to cloudflare
+            # delete NS record line at dns zone db and import dns zone db to cloudflare
             filedns = args.filedns
             filedns = deleteLineNS(filedns)
             importDNSZones(cf, zone_id, filedns)
 
-        ### set under attack mode ###
+        # set under attack mode ###
         setUnderAttack(cf, zone_id)
-        ## set bot fight mode ###
+        # set bot fight mode ###
         setBotFight(cf, zone_id)
-        ### set firewall DoS ###
+        # set firewall DoS ###
         setFirewallDoS(cf, domain, zone_id)
 
         # activatedL7DDoSHTTP(cf, zone_id)
