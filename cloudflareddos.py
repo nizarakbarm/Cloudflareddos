@@ -204,19 +204,19 @@ def activatedL7DDoSHTTP(cf, zone_id):
                             "categories": [
                                 {
                                     "sensitivity_level": "high"
-                                    }
-                                    ],
-                                    "rules": [
+                                }
+                            ],
+                            "rules": [
                                         {
                                             "action": "block"
                                         }
-                                    ]
-                                    }
-                                    },
-                                    "expression": "true",
-                                }
                             ]
+                        }
+                    },
+                    "expression": "true",
                 }
+            ]
+        }
         print(json.dumps(data))
         r = cf.zones.rulesets.phases.ddos_l7.entrypoint.put(zone_id, data=data)
         print(f"{bcolors.OKBLUE}Set L7 DDoS HTTP{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" % (r))
