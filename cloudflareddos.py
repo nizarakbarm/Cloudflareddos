@@ -44,13 +44,13 @@ def rawzonesrequest(zone_id, data, feature):
     with open('/home/devnull/.cloudflare/cloudflare.cfg', 'r') as f:
         lines = f.readlines()
         auth = ()
-        for l in lines:
-            if match := re.findall("^token\s*=\s*(\S+)", l):
+        for line in lines:
+            if match := re.findall("^token\s*=\s*(\S+)", line):
                 auth += tuple(match)
                 break
-            if match := re.findall("^email\s*=\s*(\S+)", l):
+            if match := re.findall("^email\s*=\s*(\S+)", line):
                 auth += tuple(match)
-            elif match := re.findall("^key\s*=\s*(\w+)", l):
+            elif match := re.findall("^key\s*=\s*(\w+)", line):
                 auth += tuple(match)
         #data={
         #'fight_mode': True
