@@ -21,7 +21,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-#funcation for argument
+# funcation for argument
 def setArgument():
     parser = argparse.ArgumentParser(description="Add Domain and set DDoS Block Null Route")
     parser.add_argument('-d','--domain',help='Specify domain name',required=True)
@@ -33,7 +33,7 @@ def setArgument():
         parser.print_help(sys.stderr)
         sys.exit(1)
     return args
-#used for zone requests as an alternative if python cloudflare wrapper is not working
+# used for zone requests as an alternative if python cloudflare wrapper is not working
 def rawzonesrequest(zone_id,data,feature):
     url="https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id,feature)
     
@@ -60,7 +60,7 @@ def rawzonesrequest(zone_id,data,feature):
         r=requests.put(url=url,data=json.dumps(data),headers=headers)
         return r.text
 
-#if dns zone is not empty, delete all dns records
+# if dns zone is not empty, delete all dns records
 def deleteAllDNS(cf,zone_id):
     try:
         dns_records = cf.zones.dns_records.get(zone_id)
@@ -73,7 +73,7 @@ def deleteAllDNS(cf,zone_id):
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}/zones.get: %d %s - api call failed{bcolors.ENDC}' %(e,e))
 
-#function for set dns to localhost
+# function for set dns to localhost
 def setLocalhost(cf,zone_id):
     dns_records = [
         {'name':'@','type':'A','content':'127.0.0.1'},
@@ -87,24 +87,24 @@ def setLocalhost(cf,zone_id):
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('zones.post: %d %s - api call failed' % (e, e))
 
-#function for importing dns zones
+# function for importing dns zones
 def importDNSZones(cf,zone_id,fd ):
     try:
         deleteAllDNS(cf,zone_id)
         with open(fd,'r') as f:
             dns_records_import = getattr(cf.zones.dns_records,'import_')
-            #post(identifier1=None, identifier2=None, identifier3=None, identifier4=None, params=None, data=None, files=None) method of CloudFlare.cloudflare._AddWithAuth instance
-            #Cloudflare v4 API
+            # post(identifier1=None, identifier2=None, identifier3=None, identifier4=None, params=None, data=None, files=None) method of CloudFlare.cloudflare._AddWithAuth instance
+            # Cloudflare v4 API
 
             r = dns_records_import.post(zone_id,params={'proxied':'true'},files={'file':f})
-            #proxied param not working
-            #now is rate limited
+            # proxied param not working
+            # now is rate limited
             print(f"{bcolors.OKBLUE}Import DNS Zone{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
             return r
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('zones.post: %d %s - api call failed' % (e, e))
 
-#function for deleting NS record line
+# function for deleting NS record line
 def deleteLineNS(filedns):
     with open(filedns,'r+') as f:
         data = f.readlines()
@@ -118,7 +118,7 @@ def deleteLineNS(filedns):
         f.seek(0)
         f.writelines(data)
     return filedns
-#activated i'm under attack
+# activated i'm under attack
 def setUnderAttack(cf,zone_id):
     try:
         r = cf.zones.settings.security_level.patch(zone_id,data={"value": "under_attack"})
@@ -127,7 +127,7 @@ def setUnderAttack(cf,zone_id):
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}under attack activation: %d %s - api call failed{bcolors.ENDC}' % (e, e))
 
-#activated bot fight mode with rawzonesrequest as an alternative because python cloudflare wrapper not working well with put request at bot_management
+# activated bot fight mode with rawzonesrequest as an alternative because python cloudflare wrapper not working well with put request at bot_management
 def setBotFight(cf,zone_id):
     try:
         data = {
@@ -231,13 +231,13 @@ def main():
             exit('cloudflare: %d %s - api call failed' % (e, e))
     except Exception as e:
         exit(f'{bcolors.FAIL}cloudflare: %s - api call failed{bcolors.ENDC}' % (e))
-    #print(zone_info)
+    # print(zone_info)
     if zone_id:
-    #print(args.filedns)
-    #print(domain)
+    # print(args.filedns)
+    # print(domain)
         if args.filedns is None:
             ### set dns to localhost ###
-            #print(args.localhost)
+            # print(args.localhost)
             if args.localhost==True:
                 setLocalhost(cf,zone_id)
         else:
@@ -253,7 +253,7 @@ def main():
         ### set firewall DoS ###
         setFirewallDoS(cf,domain,zone_id)
 
-        #activatedL7DDoSHTTP(cf,zone_id)
+        # activatedL7DDoSHTTP(cf,zone_id)
     else:
         print(f"{bcolors.FAIL}Zone ID is not Defined!{bcolors.ENDC}")
     
