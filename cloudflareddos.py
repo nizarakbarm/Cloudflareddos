@@ -52,15 +52,13 @@ def rawzonesrequest(zone_id, data, feature):
                 auth += tuple(match)
             elif match := re.findall(r"^key\s*=\s*(\w+)", line):
                 auth += tuple(match)
-        #data={
-        #'fight_mode': True
-        #}
+
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0',
             'Authorization': 'Bearer '+auth[0],
             'Content-Type': 'application/json'
         }
-        #r=requests.put(url = url,data = json.dumps(data), headers = headers)
+        
         r = requests.put(url=url, data=json.dumps(data), headers=headers)
         return r.text
 
@@ -118,7 +116,7 @@ def deleteLineNS(filedns):
         for linen, line in enumerate(data):
             linenew = re.sub(r'.*IN\s+NS\s+\S+', '', line)
             if linenew:
-                #print(linenew)
+                # print(linenew)
                 data.pop(linen)
                 data.insert(linen, linenew)
         f.truncate(0)
@@ -160,9 +158,9 @@ def setFirewallDoS(cf, domain, zone_id):
         out, err = proc.communicate()
         listout += tuple([out.decode('utf-8').split('\n')[0]])
     try:
-        #challenge_id: (ip.geoip.country eq "ID" and not ip.src in {ipserverhostingnya})
-        #BlockDDOS: (ip.geoip.country ne "ID" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
-        #only_id: (ip.geoip.country ne "ID" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
+        # challenge_id: (ip.geoip.country eq "ID" and not ip.src in {ipserverhostingnya})
+        # BlockDDOS: (ip.geoip.country ne "ID" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
+        # only_id: (ip.geoip.country ne "ID" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
         expressions = {
             'challenge_id': '(ip.geoip.country eq \"ID\" and not ip.src in {%s %s})' % (listout[0], listout[1]),
             'BlockDDOS': '(ip.geoip.country ne \"ID\" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' % (listout[0], listout[1]),
