@@ -58,7 +58,7 @@ def rawzonesrequest(zone_id, data, feature):
             'Authorization': 'Bearer '+auth[0],
             'Content-Type': 'application/json'
         }
-        
+
         r = requests.put(url=url, data=json.dumps(data), headers=headers)
         return r.text
 
