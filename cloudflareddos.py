@@ -80,8 +80,8 @@ def deleteAllDNS(cf, zone_id):
 # function for set dns to localhost
 def setLocalhost(cf, zone_id):
     dns_records = [
-        {'name':'@', 'type':'A', 'content':'127.0.0.1'},
-        {'name':'@', 'type':'AAAA', 'content':'::1'}
+        {'name': '@', 'type': 'A', 'content': '127.0.0.1'},
+        {'name': '@', 'type': 'AAAA', 'content': '::1'}
     ]
     deleteAllDNS(cf, zone_id)
     try:
@@ -100,7 +100,7 @@ def importDNSZones(cf, zone_id, fd ):
             dns_records_import = getattr(cf.zones.dns_records, 'import_')
             # Cloudflare v4 API
 
-            r = dns_records_import.post(zone_id, params={'proxied':'true'}, files={'file':f})
+            r = dns_records_import.post(zone_id, params={'proxied': 'true'}, files={'file': f})
             # proxied param not working
             # now is rate limited
             print(f"{bcolors.OKBLUE}Import DNS Zone{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" % (r))
@@ -230,7 +230,7 @@ def main():
 
     cf = CloudFlare.CloudFlare(profile="work")
     try:
-        zone_info = cf.zones.post(data={'jump_start':False, 'name':domain})
+        zone_info = cf.zones.post(data={'jump_start': False, 'name': domain})
         print(f"{bcolors.OKBLUE}Nameservers:{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" % (" ".join(zone_info['name_servers'])))
         zone_id = zone_info['id']
     except CloudFlare.exceptions.CloudFlareAPIError as e:
