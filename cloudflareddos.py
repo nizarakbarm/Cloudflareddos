@@ -135,7 +135,9 @@ def setUnderAttack(cf, zone_id):
         exit(f'{bcolors.FAIL}under attack activation: %d %s - api call failed{bcolors.ENDC}' % (e, e))
 
 
-# activated bot fight mode with rawzonesrequest as an alternative because python cloudflare wrapper not working well with put request at bot_management
+# activated bot fight mode with
+# rawzonesrequest as an alternative because python
+# cloudflare wrapper not working well with put request at bot_management
 def setBotFight(cf, zone_id):
     try:
         data = {
@@ -158,13 +160,14 @@ def setFirewallDoS(cf, domain, zone_id):
         out, err = proc.communicate()
         listout += tuple([out.decode('utf-8').split('\n')[0]])
     try:
-        # challenge_id: (ip.geoip.country eq "ID" and not ip.src in {ipserverhostingnya})
-        # BlockDDOS: (ip.geoip.country ne "ID" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
-        # only_id: (ip.geoip.country ne "ID" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
         expressions = {
             'challenge_id': '(ip.geoip.country eq \"ID\" and not ip.src in {%s %s})' % (listout[0], listout[1]),
-            'BlockDDOS': '(ip.geoip.country ne \"ID\" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' % (listout[0], listout[1]),
-            'only_id': '(ip.geoip.country ne \"ID\" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' % (listout[0], listout[1])
+            'BlockDDOS': '(ip.geoip.country ne \"ID\"\
+                  and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"}\
+                  and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })'
+            % (listout[0], listout[1]),
+            'only_id': '(ip.geoip.country ne \"ID\" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })'
+            % (listout[0], listout[1])
         }
         for keys, value in expressions.items():
             if keys == "challenge_id":
