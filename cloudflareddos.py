@@ -93,7 +93,7 @@ def setLocalhost(cf, zone_id):
 
 
 # function for importing dns zones
-def importDNSZones(cf, zone_id, fd ):
+def importDNSZones(cf, zone_id, fd):
     try:
         deleteAllDNS(cf, zone_id)
         with open(fd, 'r') as f:
