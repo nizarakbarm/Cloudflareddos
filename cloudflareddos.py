@@ -40,7 +40,7 @@ def setArgument():
 # used for zone requests as an alternative if python cloudflare wrapper is not working
 def rawzonesrequest(zone_id, data, feature):
     url = "https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id, feature)
-    
+
     with open('/home/devnull/.cloudflare/cloudflare.cfg', 'r') as f:
         lines = f.readlines()
         auth = ()
@@ -155,7 +155,7 @@ def setFirewallDoS(cf, domain, zone_id):
     listout = tuple()
     for t in typer:
         cmd = 'dig @ns1.domainesia.net {} {} +short'.format(domain, t)
-        
+
         proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
         out, err = proc.communicate()
         listout += tuple([out.decode('utf-8').split('\n')[0]])
@@ -258,7 +258,7 @@ def main():
             filedns = args.filedns
             filedns = deleteLineNS(filedns)
             importDNSZones(cf, zone_id, filedns)
-    
+
         ### set under attack mode ###
         setUnderAttack(cf, zone_id)
         ## set bot fight mode ###
@@ -269,7 +269,7 @@ def main():
         # activatedL7DDoSHTTP(cf, zone_id)
     else:
         print(f"{bcolors.FAIL}Zone ID is not Defined!{bcolors.ENDC}")
-    
+
 if __name__ == '__main__':
     main()
 
