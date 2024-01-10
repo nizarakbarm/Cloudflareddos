@@ -249,7 +249,7 @@ def main():
         if args.filedns is None:
             # set dns to localhost ###
             # print(args.localhost)
-            if args.localhost == True:
+            if args.localhost is True:
                 setLocalhost(cf, zone_id)
         else:
             # delete NS record line at dns zone db and import dns zone db to cloudflare
