@@ -175,7 +175,7 @@ def setFirewallDoS(cf, domain, zone_id):
                     "action": action,
                     "description": keys,
                     "filter": {
-                        "expression": value,          
+                        "expression": value,
                         "paused": False,
                     }
                 }]
