@@ -28,7 +28,7 @@ def setArgument():
     parser = argparse.ArgumentParser(description="Add Domain and set DDoS Block Null Route")
     parser.add_argument('-d', '--domain', help='Specify domain name', required=True)
     parser.add_argument('-fd', '--filedns', help='Specify DNS Zone File', required=False)
-   # parser.add_argument('-yd', '--yaml-dns', help='Specify DNS Config in YAML')
+    # parser.add_argument('-yd', '--yaml-dns', help='Specify DNS Config in YAML')
     parser.add_argument('-l', '--localhost', help='Set to Localhost', action='store_true')
     args = parser.parse_args()
     if len(sys.argv) == 1:
