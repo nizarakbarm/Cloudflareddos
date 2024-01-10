@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 
 import argparse
-import sys
-import requests
-import re
 import json
-import subprocess
+import re
 import shlex
+import subprocess
+import sys
+
 import CloudFlare
+import requests
 
 
 class bcolors:
