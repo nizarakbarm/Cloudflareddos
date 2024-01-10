@@ -157,7 +157,7 @@ def setFirewallDoS(cf, domain, zone_id):
         cmd = 'dig @ns1.domainesia.net {} {} +short'.format(domain, t)
 
         proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
-        out, err = proc.communicate()
+        out = proc.communicate()
         listout += tuple([out.decode('utf-8').split('\n')[0]])
     try:
         expressions = {
