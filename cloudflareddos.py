@@ -21,6 +21,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 # funcation for argument
 def setArgument():
     parser = argparse.ArgumentParser(description="Add Domain and set DDoS Block Null Route")
@@ -33,6 +34,8 @@ def setArgument():
         parser.print_help(sys.stderr)
         sys.exit(1)
     return args
+
+
 # used for zone requests as an alternative if python cloudflare wrapper is not working
 def rawzonesrequest(zone_id,data,feature):
     url="https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id,feature)
@@ -60,6 +63,7 @@ def rawzonesrequest(zone_id,data,feature):
         r=requests.put(url=url,data=json.dumps(data),headers=headers)
         return r.text
 
+
 # if dns zone is not empty, delete all dns records
 def deleteAllDNS(cf,zone_id):
     try:
@@ -72,6 +76,7 @@ def deleteAllDNS(cf,zone_id):
                 print(f"{bcolors.OKBLUE}Delete DNS Records{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}/zones.get: %d %s - api call failed{bcolors.ENDC}' %(e,e))
+
 
 # function for set dns to localhost
 def setLocalhost(cf,zone_id):
@@ -87,13 +92,13 @@ def setLocalhost(cf,zone_id):
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('zones.post: %d %s - api call failed' % (e, e))
 
+
 # function for importing dns zones
 def importDNSZones(cf,zone_id,fd ):
     try:
         deleteAllDNS(cf,zone_id)
         with open(fd,'r') as f:
             dns_records_import = getattr(cf.zones.dns_records,'import_')
-            # post(identifier1=None, identifier2=None, identifier3=None, identifier4=None, params=None, data=None, files=None) method of CloudFlare.cloudflare._AddWithAuth instance
             # Cloudflare v4 API
 
             r = dns_records_import.post(zone_id,params={'proxied':'true'},files={'file':f})
@@ -103,6 +108,7 @@ def importDNSZones(cf,zone_id,fd ):
             return r
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('zones.post: %d %s - api call failed' % (e, e))
+
 
 # function for deleting NS record line
 def deleteLineNS(filedns):
@@ -118,6 +124,8 @@ def deleteLineNS(filedns):
         f.seek(0)
         f.writelines(data)
     return filedns
+
+
 # activated i'm under attack
 def setUnderAttack(cf,zone_id):
     try:
@@ -126,6 +134,7 @@ def setUnderAttack(cf,zone_id):
         return r
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}under attack activation: %d %s - api call failed{bcolors.ENDC}' % (e, e))
+
 
 # activated bot fight mode with rawzonesrequest as an alternative because python cloudflare wrapper not working well with put request at bot_management
 def setBotFight(cf,zone_id):
@@ -180,6 +189,8 @@ def setFirewallDoS(cf,domain,zone_id):
 
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}cloudflare: %d %s - api call failed{bcolors.ENDC}' % (e, e))
+
+
 def activatedL7DDoSHTTP(cf,zone_id):
     try:
         data= {
@@ -213,6 +224,7 @@ def activatedL7DDoSHTTP(cf,zone_id):
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}cloudflare: %d %s - api call failed{bcolors.ENDC}' % (e, e))
 
+
 def main():
     args=setArgument()
     domain=args.domain
@@ -233,8 +245,8 @@ def main():
         exit(f'{bcolors.FAIL}cloudflare: %s - api call failed{bcolors.ENDC}' % (e))
     # print(zone_info)
     if zone_id:
-    # print(args.filedns)
-    # print(domain)
+        # print(args.filedns)
+        # print(domain)
         if args.filedns is None:
             ### set dns to localhost ###
             # print(args.localhost)
