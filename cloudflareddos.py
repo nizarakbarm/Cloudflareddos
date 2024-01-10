@@ -25,10 +25,10 @@ class bcolors:
 # funcation for argument
 def setArgument():
     parser = argparse.ArgumentParser(description="Add Domain and set DDoS Block Null Route")
-    parser.add_argument('-d','--domain',help='Specify domain name',required=True)
-    parser.add_argument('-fd','--filedns',help='Specify DNS Zone File',required=False)
-   # parser.add_argument('-yd','--yaml-dns',help='Specify DNS Config in YAML')
-    parser.add_argument('-l','--localhost',help='Set to Localhost',action='store_true')
+    parser.add_argument('-d', '--domain', help='Specify domain name', required=True)
+    parser.add_argument('-fd', '--filedns', help='Specify DNS Zone File', required=False)
+   # parser.add_argument('-yd', '--yaml-dns', help='Specify DNS Config in YAML')
+    parser.add_argument('-l', '--localhost', help='Set to Localhost', action='store_true')
     args = parser.parse_args()
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
@@ -40,16 +40,16 @@ def setArgument():
 def rawzonesrequest(zone_id,data,feature):
     url="https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id,feature)
     
-    with open('/home/devnull/.cloudflare/cloudflare.cfg','r') as f:
+    with open('/home/devnull/.cloudflare/cloudflare.cfg', 'r') as f:
         lines=f.readlines()
         auth=()
         for l in lines:
-            if match := re.findall("^token\s*=\s*(\S+)",l):
+            if match := re.findall("^token\s*=\s*(\S+)", l):
                 auth+=tuple(match)
                 break
-            if match := re.findall("^email\s*=\s*(\S+)",l):
+            if match := re.findall("^email\s*=\s*(\S+)", l):
                 auth+=tuple(match)
-            elif match := re.findall("^key\s*=\s*(\w+)",l):
+            elif match := re.findall("^key\s*=\s*(\w+)", l):
                 auth+=tuple(match)
         #data={
         #'fight_mode': True
@@ -59,49 +59,49 @@ def rawzonesrequest(zone_id,data,feature):
             'Authorization': 'Bearer '+auth[0],
             'Content-Type': 'application/json'
         }
-        #r=requests.put(url=url,data=json.dumps(data),headers=headers)
-        r=requests.put(url=url,data=json.dumps(data),headers=headers)
+        #r=requests.put(url=url,data=json.dumps(data), headers=headers)
+        r=requests.put(url=url,data=json.dumps(data), headers=headers)
         return r.text
 
 
 # if dns zone is not empty, delete all dns records
-def deleteAllDNS(cf,zone_id):
+def deleteAllDNS(cf, zone_id):
     try:
         dns_records = cf.zones.dns_records.get(zone_id)
 
         if dns_records:
             for dns_record in dns_records:
                 dns_record_id = dns_record['id']
-                r = cf.zones.dns_records.delete(zone_id,dns_record_id)
+                r = cf.zones.dns_records.delete(zone_id, dns_record_id)
                 print(f"{bcolors.OKBLUE}Delete DNS Records{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
     except CloudFlare.exceptions.CloudFlareAPIError as e:
-        exit(f'{bcolors.FAIL}/zones.get: %d %s - api call failed{bcolors.ENDC}' %(e,e))
+        exit(f'{bcolors.FAIL}/zones.get: %d %s - api call failed{bcolors.ENDC}' %(e, e))
 
 
 # function for set dns to localhost
-def setLocalhost(cf,zone_id):
+def setLocalhost(cf, zone_id):
     dns_records = [
-        {'name':'@','type':'A','content':'127.0.0.1'},
-        {'name':'@','type':'AAAA','content':'::1'}
+        {'name':'@', 'type':'A', 'content':'127.0.0.1'},
+        {'name':'@', 'type':'AAAA', 'content':'::1'}
     ]
-    deleteAllDNS(cf,zone_id)
+    deleteAllDNS(cf, zone_id)
     try:
         for dns_record in dns_records:
-            r = cf.zones.dns_records.post(zone_id,data=dns_record)
+            r = cf.zones.dns_records.post(zone_id, data=dns_record)
             print(f"{bcolors.OKBLUE} Add Record DNS{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('zones.post: %d %s - api call failed' % (e, e))
 
 
 # function for importing dns zones
-def importDNSZones(cf,zone_id,fd ):
+def importDNSZones(cf, zone_id,fd ):
     try:
-        deleteAllDNS(cf,zone_id)
-        with open(fd,'r') as f:
-            dns_records_import = getattr(cf.zones.dns_records,'import_')
+        deleteAllDNS(cf, zone_id)
+        with open(fd, 'r') as f:
+            dns_records_import = getattr(cf.zones.dns_records, 'import_')
             # Cloudflare v4 API
 
-            r = dns_records_import.post(zone_id,params={'proxied':'true'},files={'file':f})
+            r = dns_records_import.post(zone_id, params={'proxied':'true'}, files={'file':f})
             # proxied param not working
             # now is rate limited
             print(f"{bcolors.OKBLUE}Import DNS Zone{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
@@ -112,14 +112,14 @@ def importDNSZones(cf,zone_id,fd ):
 
 # function for deleting NS record line
 def deleteLineNS(filedns):
-    with open(filedns,'r+') as f:
+    with open(filedns, 'r+') as f:
         data = f.readlines()
-        for linen,line in enumerate(data):
-            linenew=re.sub(r'.*IN\s+NS\s+\S+','',line)
+        for linen, line in enumerate(data):
+            linenew=re.sub(r'.*IN\s+NS\s+\S+', '', line)
             if linenew:
                 #print(linenew)
                 data.pop(linen)
-                data.insert(linen,linenew)
+                data.insert(linen, linenew)
         f.truncate(0)
         f.seek(0)
         f.writelines(data)
@@ -127,9 +127,9 @@ def deleteLineNS(filedns):
 
 
 # activated i'm under attack
-def setUnderAttack(cf,zone_id):
+def setUnderAttack(cf, zone_id):
     try:
-        r = cf.zones.settings.security_level.patch(zone_id,data={"value": "under_attack"})
+        r = cf.zones.settings.security_level.patch(zone_id, data={"value": "under_attack"})
         print(f"{bcolors.OKBLUE}Activating Under Attack{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
         return r
     except CloudFlare.exceptions.CloudFlareAPIError as e:
@@ -137,25 +137,25 @@ def setUnderAttack(cf,zone_id):
 
 
 # activated bot fight mode with rawzonesrequest as an alternative because python cloudflare wrapper not working well with put request at bot_management
-def setBotFight(cf,zone_id):
+def setBotFight(cf, zone_id):
     try:
         data = {
             'fight_mode': True
         }
-        r=rawzonesrequest(zone_id,data,'bot_management')
+        r=rawzonesrequest(zone_id, data, 'bot_management')
         print(f"{bcolors.OKBLUE}Activating Bot Fight Mode{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
         return r
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}cloudflare: %d %s - api call failed{bcolors.ENDC}' % (e, e))
 
 
-def setFirewallDoS(cf,domain,zone_id):
-    typer=['A','AAAA']
+def setFirewallDoS(cf, domain, zone_id):
+    typer=['A', 'AAAA']
     listout=tuple()
     for t in typer:
-        cmd='dig @ns1.domainesia.net {} {} +short'.format(domain,t)
+        cmd='dig @ns1.domainesia.net {} {} +short'.format(domain, t)
         
-        proc=subprocess.Popen(shlex.split(cmd),stdout=subprocess.PIPE)
+        proc=subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
         out,err=proc.communicate()
         listout+=tuple([out.decode('utf-8').split('\n')[0]])
     try:
@@ -167,7 +167,7 @@ def setFirewallDoS(cf,domain,zone_id):
             'BlockDDOS': '(ip.geoip.country ne \"ID\" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0],listout[1]),
             'only_id': '(ip.geoip.country ne \"ID\" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0],listout[1])
         }
-        for keys,value in expressions.items():
+        for keys, value in expressions.items():
             if keys == "challenge_id":
                 action="js_challenge"
             else:
@@ -191,7 +191,7 @@ def setFirewallDoS(cf,domain,zone_id):
         exit(f'{bcolors.FAIL}cloudflare: %d %s - api call failed{bcolors.ENDC}' % (e, e))
 
 
-def activatedL7DDoSHTTP(cf,zone_id):
+def activatedL7DDoSHTTP(cf, zone_id):
     try:
         data= {
             "description": "Execute HTTP DDoS Attack Protection Managed Ruleset in the zone-level phase entry point ruleset",
@@ -231,7 +231,7 @@ def main():
 
     cf = CloudFlare.CloudFlare(profile="work")
     try:
-        zone_info = cf.zones.post(data={'jump_start':False,'name':domain})
+        zone_info = cf.zones.post(data={'jump_start':False, 'name':domain})
         print(f"{bcolors.OKBLUE}Nameservers:{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(" ".join(zone_info['name_servers'])))
         zone_id = zone_info['id']
     except CloudFlare.exceptions.CloudFlareAPIError as e:
@@ -251,21 +251,21 @@ def main():
             ### set dns to localhost ###
             # print(args.localhost)
             if args.localhost==True:
-                setLocalhost(cf,zone_id)
+                setLocalhost(cf, zone_id)
         else:
             ### delete NS record line at dns zone db and import dns zone db to cloudflare
             filedns=args.filedns
             filedns=deleteLineNS(filedns)
-            importDNSZones(cf,zone_id,filedns)
+            importDNSZones(cf, zone_id, filedns)
     
         ### set under attack mode ###
-        setUnderAttack(cf,zone_id)
+        setUnderAttack(cf, zone_id)
         ## set bot fight mode ###
-        setBotFight(cf,zone_id)
+        setBotFight(cf, zone_id)
         ### set firewall DoS ###
-        setFirewallDoS(cf,domain,zone_id)
+        setFirewallDoS(cf, domain, zone_id)
 
-        # activatedL7DDoSHTTP(cf,zone_id)
+        # activatedL7DDoSHTTP(cf, zone_id)
     else:
         print(f"{bcolors.FAIL}Zone ID is not Defined!{bcolors.ENDC}")
     
