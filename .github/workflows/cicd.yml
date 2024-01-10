@@ -1,0 +1,89 @@
+name: Python CI/CD
+
+on:
+    pull_request:
+        types: [opened, reopened]
+        branches:
+        - main
+        - develop
+        - 'feature/**'
+    push:
+        branches:
+        - main
+        - develop
+        - 'feature/**'
+        paths:
+        - '**.py'
+
+concurrency:
+    group: ${{ github.workflow}}-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    flake8:
+       name: flake8
+       runs-on: ubuntu-latest
+       steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+        - name: Setup Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.11'
+        - run: pip install -r requirements.txt
+        - run: pip install flake8
+        - name: flake8
+          uses: liskin/gh-problem-matcher-wrap@c16e095dffef531e20a97f84d22d1363e0964c75
+          with:
+            linters: flake8
+            run: flake8 --max-line-length 150 .
+
+    isort:
+        runs-on: ubuntu-latest
+        steps:
+         - name: Checkout
+           uses: actions/checkout@v4
+         - name: Setup Python
+           uses: actions/setup-python@v4
+           with:
+            python-version: '3.11'
+         - run: pip install -r requirements.txt
+         - run: pip install isort
+         - name: isort
+           uses: liskin/gh-problem-matcher-wrap@c16e095dffef531e20a97f84d22d1363e0964c75
+           with:
+            linters: isort
+            run: isort --check cloudflareddos.py
+
+
+    codacy-sast:
+        permissions:
+            contents: read # for actions/checkout to fetch code
+            security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+            actions: read
+        name: Codacy SAST
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Run Codacy Analysis CLI
+              uses: codacy/codacy-analysis-cli-action@v4.3.0
+              with:
+                project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+                skip-uncommitted-files-check: "true"
+                verbose: true
+                output: results.sarif
+                format: sarif
+                upload: true
+                fail-if-incomplete: true
+                gh-code-scanning-compat: true
+                max-allowed-issues: 2147483647
+
+            - name: Upload SARIF results file
+              uses: github/codeql-action/upload-sarif@v2
+              with:
+                sarif_file: results.sarif
