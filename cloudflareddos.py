@@ -45,12 +45,12 @@ def rawzonesrequest(zone_id, data, feature):
         lines = f.readlines()
         auth = ()
         for line in lines:
-            if match := re.findall("^token\s*=\s*(\S+)", line):
+            if match := re.findall(r"^token\s*=\s*(\S+)", line):
                 auth += tuple(match)
                 break
-            if match := re.findall("^email\s*=\s*(\S+)", line):
+            if match := re.findall(r"^email\s*=\s*(\S+)", line):
                 auth += tuple(match)
-            elif match := re.findall("^key\s*=\s*(\w+)", line):
+            elif match := re.findall(r"^key\s*=\s*(\w+)", line):
                 auth += tuple(match)
         #data={
         #'fight_mode': True
