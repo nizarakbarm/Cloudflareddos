@@ -38,8 +38,8 @@ def setArgument():
 
 
 # used for zone requests as an alternative if python cloudflare wrapper is not working
-def rawzonesrequest(zone_id,data,feature):
-    url="https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id,feature)
+def rawzonesrequest(zone_id, data, feature):
+    url="https://api.cloudflare.com/client/v4/zones/{}/{}".format(zone_id, feature)
     
     with open('/home/devnull/.cloudflare/cloudflare.cfg', 'r') as f:
         lines=f.readlines()
@@ -61,7 +61,7 @@ def rawzonesrequest(zone_id,data,feature):
             'Content-Type': 'application/json'
         }
         #r=requests.put(url=url,data=json.dumps(data), headers=headers)
-        r=requests.put(url=url,data=json.dumps(data), headers=headers)
+        r=requests.put(url=url, data=json.dumps(data), headers=headers)
         return r.text
 
 
@@ -95,7 +95,7 @@ def setLocalhost(cf, zone_id):
 
 
 # function for importing dns zones
-def importDNSZones(cf, zone_id,fd ):
+def importDNSZones(cf, zone_id, fd ):
     try:
         deleteAllDNS(cf, zone_id)
         with open(fd, 'r') as f:
@@ -157,16 +157,16 @@ def setFirewallDoS(cf, domain, zone_id):
         cmd='dig @ns1.domainesia.net {} {} +short'.format(domain, t)
         
         proc=subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
-        out,err=proc.communicate()
+        out, err=proc.communicate()
         listout+=tuple([out.decode('utf-8').split('\n')[0]])
     try:
         #challenge_id: (ip.geoip.country eq "ID" and not ip.src in {ipserverhostingnya})
         #BlockDDOS: (ip.geoip.country ne "ID" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
         #only_id: (ip.geoip.country ne "ID" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in {ipserverhostingnya})
         expressions={
-            'challenge_id': '(ip.geoip.country eq \"ID\" and not ip.src in {%s %s})' %(listout[0],listout[1]),
-            'BlockDDOS': '(ip.geoip.country ne \"ID\" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0],listout[1]),
-            'only_id': '(ip.geoip.country ne \"ID\" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0],listout[1])
+            'challenge_id': '(ip.geoip.country eq \"ID\" and not ip.src in {%s %s})' %(listout[0], listout[1]),
+            'BlockDDOS': '(ip.geoip.country ne \"ID\" and ip.geoip.country in {"CA" "CN" "IE" "NL" "RO" "RU" "TT" "GB" "US"} and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0], listout[1]),
+            'only_id': '(ip.geoip.country ne \"ID\" and not ip.geoip.asnum in {32934 394699 15169 22577} and not ip.src in { %s %s })' %(listout[0], listout[1])
         }
         for keys, value in expressions.items():
             if keys == "challenge_id":
@@ -182,7 +182,7 @@ def setFirewallDoS(cf, domain, zone_id):
                     }
                 }]
             try:
-                r = cf.zones.firewall.rules.post(zone_id,data=params)
+                r = cf.zones.firewall.rules.post(zone_id, data=params)
                 print(f"{bcolors.OKBLUE}Set Firewall Rules{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
             except CloudFlare.exceptions.CloudFlareAPIError as e:
                 if int(e) == 10202:
@@ -220,7 +220,7 @@ def activatedL7DDoSHTTP(cf, zone_id):
                             ]
                 }
         print(json.dumps(data))
-        r = cf.zones.rulesets.phases.ddos_l7.entrypoint.put(zone_id,data=data)
+        r = cf.zones.rulesets.phases.ddos_l7.entrypoint.put(zone_id, data=data)
         print(f"{bcolors.OKBLUE}Set L7 DDoS HTTP{bcolors.ENDC}: {bcolors.OKGREEN}%s{bcolors.ENDC}" %(r))
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit(f'{bcolors.FAIL}cloudflare: %d %s - api call failed{bcolors.ENDC}' % (e, e))
