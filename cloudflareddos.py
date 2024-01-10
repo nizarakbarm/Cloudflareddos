@@ -31,7 +31,7 @@ def setArgument():
    # parser.add_argument('-yd', '--yaml-dns', help='Specify DNS Config in YAML')
     parser.add_argument('-l', '--localhost', help='Set to Localhost', action='store_true')
     args = parser.parse_args()
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
     return args
